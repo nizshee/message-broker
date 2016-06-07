@@ -37,8 +37,9 @@ public class MessageManager {
         List<Message> list = messages.get(topic);
         synchronized (list) {
             AtomicInteger counter = msgCount.get(topic);
-            int nsize = counter.incrementAndGet();
-            // TODO save message
+            int nSize = counter.incrementAndGet();
+
+            // TODO save message nSize
             list.add(message);
         }
 

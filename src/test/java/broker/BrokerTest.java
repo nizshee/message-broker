@@ -15,11 +15,14 @@ public class BrokerTest {
         broker.subscribe(new Subscriber(2), new Topic("0"));
         broker.subscribe(new Subscriber(2), new Topic("1"));
         broker.publish(new Topic("0"), new Message("abc"));
-        broker.publish(new Topic("0"), new Message("ab"));
+        broker.publish(new Topic("1"), new Message("ab"));
         System.err.println(broker.fetch(new Subscriber(0)).get().text);
         System.err.println(broker.fetch(new Subscriber(2)).get().text);
         System.err.println(broker.fetch(new Subscriber(2)).get().text);
         System.err.println(broker.fetch(new Subscriber(2)));
+        broker.publish(new Topic("1"), new Message("a"));
+        System.err.println(broker.fetch(new Subscriber(2)).get().text);
+        System.err.println(broker.fetch(new Subscriber(0)));
         broker.close();
 
     }

@@ -48,34 +48,12 @@ public class Broker {
 //        conn.close();
     }
 
-//    public void waitTopic(Subscriber subscriber) {
-//        monitors.putIfAbsent(subscriber, new LinkedList<>());
-//        List<Object> list = monitors.get(subscriber);
-//        synchronized (list) {
-//            if (subscribers.hasNewMessage(subscriber)) return;
-//            Object monitor = new Object();
-//            list.add(monitor);
-//            try {
-//                monitor.wait();
-//            } catch (InterruptedException ignored) {
-//            }
-//        }
-//
-//    }
-//
-//    public void notifySubscriber(Subscriber subscriber) {
-//        System.err.println("notify " + subscriber.id);
-//        monitors.putIfAbsent(subscriber, new LinkedList<>());
-//        LinkedList list = monitors.get(subscriber);
-//        synchronized (list) {
-//            if (list.isEmpty()) return;
-//            Object monitor = list.pollFirst();
-//            monitor.notifyAll();
-//        }
-//    }
-
     public void publish(Topic topic, Message message) {
         topics.publish(topic, message);
+    }
+
+    public Optional<Message> fetch(Subscriber subscriber) {
+        return subscribers.getNewMessage(subscriber);
     }
 
     public void addMessage(Topic topic, Message message) {
@@ -88,10 +66,6 @@ public class Broker {
 
     public int getMessageCount(Topic topic) {
         return messages.getMessageCount(topic);
-    }
-
-    public Optional<Message> fetch(Subscriber subscriber) {
-        return subscribers.getNewMessage(subscriber);
     }
 
 }
