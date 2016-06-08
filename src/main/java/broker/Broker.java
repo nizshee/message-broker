@@ -34,7 +34,7 @@ public class Broker {
 
 
     public void subscribe(Subscriber subscriber, Topic topic) throws Exception {
-        subscribers.subscribe(subscriber, topic);
+        subscribers.addTopic(subscriber, topic);
     }
 
     public void publish(Topic topic, Message message) throws Exception {

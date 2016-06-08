@@ -22,7 +22,7 @@ public class MessageManager {
             + "  (tId           INTEGER,"
             + "   num           INTEGER,"
             + "   msg           VARCHAR(128))";
-    public static final String SELECT_ALL_MSG = "SELECT * FROM " + TABLE_MSG;
+    public static final String SELECT_ALL_MSG = "SELECT * FROM " + TABLE_MSG + " ORDER BY num ASC";
     public static final String INSERT_MSG = "INSERT INTO " + TABLE_MSG + " VALUES ";
 
     public MessageManager(Broker broker) throws Exception {

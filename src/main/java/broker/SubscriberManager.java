@@ -53,7 +53,7 @@ public class SubscriberManager {
         conn.close();
     }
 
-    public void subscribe(Subscriber subscriber, Topic topic) throws Exception {
+    public void addTopic(Subscriber subscriber, Topic topic) throws Exception {
         int count = broker.getMessageCount(topic);
 
         state.putIfAbsent(subscriber, new ConcurrentHashMap<>());
