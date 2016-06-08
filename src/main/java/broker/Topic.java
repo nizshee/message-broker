@@ -3,19 +3,19 @@ package broker;
 
 public class Topic {
 
-    public final String name;
+    public final int id;
 
-    public Topic(String name) {
-        this.name = name;
+    public Topic(int id) {
+        this.id = id;
     }
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof Topic && name.equals(((Topic) o).name);
+        return o instanceof Topic && id == ((Topic) o).id;
     }
 
     @Override
     public int hashCode() {
-        return name.hashCode();
+        return Integer.hashCode(id);
     }
 }

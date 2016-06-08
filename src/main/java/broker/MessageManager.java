@@ -1,6 +1,8 @@
 package broker;
 
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -12,17 +14,25 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MessageManager {
 
     private final Broker broker;
+    private final Connection conn;
 
     private final ConcurrentMap<Topic, AtomicInteger> msgCount;
     private final ConcurrentHashMap<Topic, List<Message>> messages;
 
-    public MessageManager(Broker broker) {
+    public MessageManager(Broker broker) throws Exception {
         this.broker = broker;
 
         msgCount = new ConcurrentHashMap<>();
         messages = new ConcurrentHashMap<>();
 
+        Class.forName("org.h2.Driver");
+        conn = DriverManager.getConnection("jdbc:h2:" + broker.getFolder().getAbsolutePath() + "/msg", "broker", "");
+
         // TODO init msgCount messages
+    }
+
+    public void close() throws Exception {
+
     }
 
     public int getMessageCount(Topic topic) {
