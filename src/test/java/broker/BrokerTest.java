@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 
 public class BrokerTest {
 
-    public static final String DIRECTORY_NAME = "/tmp/test1";
+    public static final String DIRECTORY_NAME = "testFolder";
 
     public static final Subscriber SUBS1 = new Subscriber(1);
     public static final Subscriber SUBS2 = new Subscriber(2);
