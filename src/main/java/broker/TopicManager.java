@@ -26,7 +26,7 @@ public class TopicManager {
         return broker.getMessageCount(topic);
     }
 
-    public void publish(Topic topic, Message message) {
+    public void publish(Topic topic, Message message) throws Exception {
         broker.addMessage(topic, message);
         // TODO
     }

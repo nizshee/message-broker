@@ -3,8 +3,11 @@ package broker;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -19,6 +22,15 @@ public class MessageManager {
     private final ConcurrentMap<Topic, AtomicInteger> msgCount;
     private final ConcurrentHashMap<Topic, List<Message>> messages;
 
+    public static final String TABLE_MSG = "msg";
+    public static final String CREATE_MSG = "CREATE TABLE IF NOT EXISTS " + TABLE_MSG
+            + "  (tId           INTEGER,"
+            + "   num           INTEGER,"
+            + "   msg           VARCHAR(128))";
+    public static final String SELECT_ALL_MSG = "SELECT * FROM " + TABLE_MSG;
+    public static final String SELECT_COUNT = "SELECT COUNT(1) FROM " + TABLE_MSG + " WHERE tId = ";
+    public static final String INSERT_MSG = "INSERT INTO " + TABLE_MSG + " VALUES ";
+
     public MessageManager(Broker broker) throws Exception {
         this.broker = broker;
 
@@ -28,11 +40,23 @@ public class MessageManager {
         Class.forName("org.h2.Driver");
         conn = DriverManager.getConnection("jdbc:h2:" + broker.getFolder().getAbsolutePath() + "/msg", "broker", "");
 
-        // TODO init msgCount messages
+        Statement stmt = conn.createStatement();
+        stmt.execute(CREATE_MSG);
+
+        ResultSet rs = stmt.executeQuery(SELECT_ALL_MSG);
+        while (rs.next()) {
+            int tId = rs.getInt("tId");
+            String msg = rs.getString("msg");
+            Topic topic = new Topic(tId);
+            msgCount.putIfAbsent(topic, new AtomicInteger(0));
+            msgCount.get(topic).incrementAndGet();
+            messages.putIfAbsent(topic, new CopyOnWriteArrayList<>());
+            messages.get(topic).add(new Message(msg));
+        }
     }
 
     public void close() throws Exception {
-
+        conn.close();
     }
 
     public int getMessageCount(Topic topic) {
@@ -40,7 +64,7 @@ public class MessageManager {
         return 0;
     }
 
-    public void addMessage(Topic topic, Message message) {
+    public void addMessage(Topic topic, Message message) throws Exception {
 
         messages.putIfAbsent(topic, new CopyOnWriteArrayList<>());
         msgCount.putIfAbsent(topic, new AtomicInteger(0));
@@ -49,6 +73,8 @@ public class MessageManager {
             AtomicInteger counter = msgCount.get(topic);
             int nSize = counter.incrementAndGet();
 
+            Statement stmt = conn.createStatement();
+            stmt.execute(INSERT_MSG + "(" + topic.id + ", " + nSize + ", \'" + message.text + "\')");
             // TODO save message nSize
             list.add(message);
         }

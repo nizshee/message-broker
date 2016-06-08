@@ -1,5 +1,6 @@
 package broker;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -95,15 +96,16 @@ public class BrokerTest {
         assertFalse(oMessage.isPresent());
 
         broker.close();
+        deleteDirectory();
     }
 
     @Test
     public void concurrentTest() throws Exception {
 
-        deleteDirectory();
-
         int threadCount = 8;
         int messageCount = 1000;
+
+        deleteDirectory();
 
         Broker broker = new Broker(DIRECTORY_NAME);
         for (int i = 0; i < threadCount; ++i) {
@@ -118,9 +120,12 @@ public class BrokerTest {
             public void run() {
                 Topic topic1 = new Topic(i);
                 Topic topic2 = new Topic(i);
-                for (int i = 0; i < messageCount; ++i) {
-                    broker.publish(topic1, new Message("" + i));
-                    broker.publish(topic2, new Message("" + i));
+                try {
+                    for (int i = 0; i < messageCount; ++i) {
+                        broker.publish(topic1, new Message("" + i));
+                        broker.publish(topic2, new Message("" + i));
+                    }
+                } catch (Exception ignore) {
                 }
             }
         }).collect(Collectors.toList());
@@ -170,9 +175,49 @@ public class BrokerTest {
         });
 
         IntStream.range(0, threadCount).forEach(i -> assertEquals(total.get(i).get(), 4 * messageCount));
+        broker.close();
     }
 
+    @Test
+    public void memoryTest() throws Exception {
 
+        int messageCount = 100;
 
+        deleteDirectory();
+
+        Broker broker = new Broker(DIRECTORY_NAME);
+        broker.subscribe(SUBS1, TOP1);
+        for (int i = 0; i < messageCount; ++i) {
+            broker.publish(TOP1, new Message("" + i));
+        }
+
+        broker.subscribe(SUBS2, TOP1);
+        for (int i = 0; i < messageCount; ++i) {
+            broker.publish(TOP1, new Message("" + (i + messageCount)));
+        }
+
+        for (int i = 0; i < messageCount; ++i) {
+            broker.fetch(SUBS1);
+        }
+
+        broker.close();
+        broker = new Broker(DIRECTORY_NAME);
+
+        int subs1Res = 0;
+        int subs2Res = 0;
+
+        while (broker.fetch(SUBS1).isPresent()) {
+            ++subs1Res;
+        }
+        while (broker.fetch(SUBS2).isPresent()) {
+            ++subs2Res;
+        }
+
+        assertEquals(messageCount, subs1Res);
+        assertEquals(messageCount, subs2Res);
+
+        broker.close();
+        deleteDirectory();
+    }
 
 }

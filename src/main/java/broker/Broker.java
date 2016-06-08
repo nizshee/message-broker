@@ -16,24 +16,15 @@ public class Broker {
     private final SubscriberManager subscribers;
     private final MessageManager messages;
 
-    private final ConcurrentMap<Subscriber, LinkedList<Object>> monitors;
-
 
     public Broker(String folderName) throws Exception {
 
         folder = new File(folderName);
         folder.mkdirs();
-        System.err.println(folder.getAbsolutePath());
 
         topics = new TopicManager(this);
         subscribers = new SubscriberManager(this);
         messages = new MessageManager(this);
-
-        monitors = new ConcurrentHashMap<>();
-        //    private Connection conn = null;
-//        Class.forName("org.h2.Driver");
-//        conn = DriverManager.getConnection("jdbc:h2:" + folderName, "broker", "");
-//        conn.close();
     }
 
     public void close() throws Exception {
@@ -53,7 +44,7 @@ public class Broker {
         subscribers.subscribe(subscriber, topic);
     }
 
-    public void publish(Topic topic, Message message) {
+    public void publish(Topic topic, Message message) throws Exception {
         topics.publish(topic, message);
     }
 
@@ -61,7 +52,7 @@ public class Broker {
         return subscribers.getNewMessage(subscriber);
     }
 
-    public void addMessage(Topic topic, Message message) {
+    public void addMessage(Topic topic, Message message) throws Exception {
         messages.addMessage(topic, message);
     }
 

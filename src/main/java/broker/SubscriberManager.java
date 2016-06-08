@@ -63,10 +63,9 @@ public class SubscriberManager {
         ConcurrentMap<Topic, AtomicInteger> map = state.get(subscriber);
         if (map.containsKey(topic)) return;
         map.put(topic, new AtomicInteger(count));
-//         TODO save
 
         Statement stmt = conn.createStatement();
-        stmt.execute(INSERT + "(" + subscriber.id + ", " + topic.id + ", 0)");
+        stmt.execute(INSERT + "(" + subscriber.id + ", " + topic.id + ", " + count + ")");
     }
 
     public Optional<Message> getNewMessage(Subscriber subscriber) throws Exception {
