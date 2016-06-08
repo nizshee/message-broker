@@ -1,13 +1,10 @@
 package broker;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -143,20 +140,19 @@ public class BrokerTest {
         threads = IntStream.range(0, threadCount).mapToObj(i -> new Thread() {
             @Override
             public void run() {
-                int fst = i;
-                int snd = (i + 1) % threadCount;
-                Subscriber subscriber1 = new Subscriber(fst);
-                Subscriber subscriber2 = new Subscriber(snd);
+                int j = (i + 1) % threadCount;
+                Subscriber subscriber1 = new Subscriber(i);
+                Subscriber subscriber2 = new Subscriber(j);
                 try {
                     int flag = 0;
                     while (flag < 3) {
                         if (broker.fetch(subscriber1).isPresent()) {
-                            total.get(fst).incrementAndGet();
+                            total.get(i).incrementAndGet();
                         } else {
                             flag |= 1;
                         }
                         if (broker.fetch(subscriber2).isPresent()) {
-                            total.get(snd).incrementAndGet();
+                            total.get(j).incrementAndGet();
                         } else {
                             flag |= 2;
                         }

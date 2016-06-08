@@ -1,18 +1,13 @@
 package broker;
 
-
 import java.io.File;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+
 
 public class Broker {
 
     private final File folder;
 
-    private final TopicManager topics;
     private final SubscriberManager subscribers;
     private final MessageManager messages;
 
@@ -20,9 +15,9 @@ public class Broker {
     public Broker(String folderName) throws Exception {
 
         folder = new File(folderName);
+        //noinspection ResultOfMethodCallIgnored
         folder.mkdirs();
 
-        topics = new TopicManager(this);
         subscribers = new SubscriberManager(this);
         messages = new MessageManager(this);
     }
@@ -36,24 +31,18 @@ public class Broker {
         return folder;
     }
 
-    public int addSubscriber(Topic topic, Subscriber subscriber) {
-        return topics.addSubscriber(topic, subscriber);
-    }
+
 
     public void subscribe(Subscriber subscriber, Topic topic) throws Exception {
         subscribers.subscribe(subscriber, topic);
     }
 
     public void publish(Topic topic, Message message) throws Exception {
-        topics.publish(topic, message);
+        messages.addMessage(topic, message);
     }
 
     public Optional<Message> fetch(Subscriber subscriber) throws Exception {
         return subscribers.getNewMessage(subscriber);
-    }
-
-    public void addMessage(Topic topic, Message message) throws Exception {
-        messages.addMessage(topic, message);
     }
 
     public Optional<Message> getMessage(Topic topic, int number) {

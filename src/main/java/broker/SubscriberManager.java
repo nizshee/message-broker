@@ -5,11 +5,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Optional;
-import java.util.Set;
-import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -57,7 +54,7 @@ public class SubscriberManager {
     }
 
     public void subscribe(Subscriber subscriber, Topic topic) throws Exception {
-        int count = broker.addSubscriber(topic, subscriber);
+        int count = broker.getMessageCount(topic);
 
         state.putIfAbsent(subscriber, new ConcurrentHashMap<>());
         ConcurrentMap<Topic, AtomicInteger> map = state.get(subscriber);
@@ -74,6 +71,7 @@ public class SubscriberManager {
 
         Optional<Topic> oTopic;
         int nSize = 0;
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (map) {
             oTopic = getChangedTopic(subscriber);
             if (oTopic.isPresent()) {
